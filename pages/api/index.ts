@@ -4,7 +4,7 @@ import axios from "axios";
 
 const allowCors =
   (fn: any) => async (req: NextApiRequest, res: NextApiResponse) => {
-    res.setHeader("Access-Control-Allow-Credentials", true);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Access-Control-Allow-Origin", "*");
     // another common pattern
     // res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
