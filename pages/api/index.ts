@@ -35,6 +35,10 @@ const index = async (req: NextApiRequest, res: NextApiResponse) => {
             unit_price: Number(req.body.price) || 1000,
           },
         ],
+        payment_methods: {
+          excluded_payment_methods: [{ id: "pix" }],
+          excluded_payment_types: [{}],
+        },
       },
       {
         headers: {
@@ -43,8 +47,9 @@ const index = async (req: NextApiRequest, res: NextApiResponse) => {
         },
       }
     );
+    const willReceive = ((Number(req.body.price) || 1000) * (100 - 3.99)) / 100;
 
-    return res.status(200).json({ id: data.id });
+    return res.status(200).json({ id: data.id, willReceive });
   } catch (err: any) {
     return res
       .status(err?.status)
