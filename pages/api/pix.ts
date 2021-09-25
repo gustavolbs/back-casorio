@@ -1,6 +1,6 @@
 import { config } from "../../config";
 import { NextApiRequest, NextApiResponse } from "next";
-import axios from "axios";
+var mercadopago = require("mercadopago");
 
 const allowCors =
   (fn: any) => async (req: NextApiRequest, res: NextApiResponse) => {
@@ -24,46 +24,38 @@ const allowCors =
   };
 
 const index = async (req: NextApiRequest, res: NextApiResponse) => {
-  const value = Number(req.body.price) || 1000;
   try {
-    const { data } = await axios.post(
-      "https://api.mercadopago.com/checkout/preferences",
-      {
-        items: [
-          {
-            title: "Casamento Gustavo e Déborah",
-            quantity: 1,
-            unit_price: value,
-          },
-        ],
-        payment_methods: {
-          excluded_payment_methods: [{ id: "pix" }],
-          excluded_payment_types: [{}],
+    const value = Number(req.body.price);
+
+    var payment_data = {
+      transaction_amount: value,
+      description: "Casamento Gustavo e Déborah",
+      payment_method_id: "pix",
+      payer: {
+        email: "gustavo.luiz.bispo.santos@gmail.com",
+        first_name: "Gustavo",
+        last_name: "Bispo",
+        identification: {
+          type: "CPF",
+          number: "45009034026",
+        },
+        address: {
+          zip_code: "06233200",
+          street_name: "Av. das Nações Unidas",
+          street_number: "3003",
+          neighborhood: "Bonfim",
+          city: "Osasco",
+          federal_unit: "SP",
         },
       },
-      {
-        headers: {
-          Authorization: `Bearer ${config.mercadoPagoAccessToken}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const willReceive = (value * (100 - 3.99)) / 100;
+    };
 
-    const { data: installments } = await axios.post(
-      `${process.env.APP_URL}/api/installments`,
-      {
-        price: value,
-      }
-    );
-
-    const { data: pix } = await axios.post(`${process.env.APP_URL}/api/pix`, {
-      price: value,
-    });
+    mercadopago.configurations.setAccessToken(config.mercadoPagoAccessToken);
+    const response = await mercadopago.payment.create(payment_data);
 
     return res
       .status(200)
-      .json({ id: data.id, willReceive, installments, pix });
+      .json(response.response.point_of_interaction.transaction_data);
   } catch (err: any) {
     return res
       .status(err?.status)
