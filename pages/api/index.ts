@@ -1,6 +1,7 @@
 import { config } from "../../config";
 import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
+import willReceive from "../../calculateWillReceive";
 
 const allowCors =
   (fn: any) => async (req: NextApiRequest, res: NextApiResponse) => {
@@ -48,7 +49,7 @@ const index = async (req: NextApiRequest, res: NextApiResponse) => {
         },
       }
     );
-    const willReceive = (value * (100 - 3.99)) / 100;
+    const receive = willReceive(value);
 
     const { data: installments } = await axios.post(
       `${process.env.APP_URL}/api/installments`,
@@ -63,7 +64,7 @@ const index = async (req: NextApiRequest, res: NextApiResponse) => {
 
     return res
       .status(200)
-      .json({ id: data.id, willReceive, installments, pix });
+      .json({ id: data.id, willReceive: receive, installments, pix });
   } catch (err: any) {
     return res
       .status(err?.status)
