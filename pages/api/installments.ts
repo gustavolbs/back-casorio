@@ -52,7 +52,7 @@ const index = async (req: NextApiRequest, res: NextApiResponse) => {
       const item = {
         installment: key,
         totalValue: totalValue.toFixed(2),
-        parcels: `${key}x de R$${(totalValue / Number(key)).toFixed(2)}`,
+        parcels: `${key}x R$${(totalValue / Number(key)).toFixed(2)}`,
       };
 
       installments.push(item);
