@@ -32,7 +32,7 @@ const index = async (req: NextApiRequest, res: NextApiResponse) => {
       {
         items: [
           {
-            title: "Casamento Gustavo e Déborah",
+            title: req.body.product || "Casamento Gustavo e Déborah",
             quantity: 1,
             unit_price: value,
           },
